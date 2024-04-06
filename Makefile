@@ -3,7 +3,7 @@ GLASS	= $(OUTPUT)/glass.sys
 FRAME	= $(OUTPUT)/frame.se
 IMAGE	= $(OUTPUT)/skylight.hdd
 
-LIMINE-EFI		= https://github.com/limine-bootloader/limine/raw/v6.x-branch-binary/BOOTX64.EFI
+LIMINE-EFI		= https://github.com/limine-bootloader/limine/raw/v7.x-binary/BOOTX64.EFI
 # actually 7.0 somehow
 
 .DEFAULT-GOAL	= image
@@ -59,3 +59,8 @@ run:
 
 debug:
 	@ qemu-system-x86_64 $(QEMU_ARGS) -S -gdb tcp::1234 -d int -no-shutdown -no-reboot $(ADD_QEMU_ARGS)
+
+debug-screen:
+	@ screen -S qemu -d -m qemu-system-x86_64 $(QEMU_ARGS) -S -gdb tcp::1234 -d int -no-shutdown -no-reboot $(ADD_QEMU_ARGS)
+	@ echo "Created QEMU instance in detached screen."
+	
