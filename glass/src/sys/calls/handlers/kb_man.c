@@ -55,5 +55,5 @@ void __kb_man_save_key(uint8_t keycode) {
         return;
 
     uint8_t* buffer = (uint8_t*)current_buffer;
-    buffer[*current_size++] = keycode;
+    buffer[(*current_size)++] = keycode;
 }
