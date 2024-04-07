@@ -102,6 +102,7 @@ void tty_kill() {
     fb_data = NULL;
 }
 
+// Does not render the character on the screen, only places it in the buffer
 void tty_place_character(uint64_t x, uint64_t y, uint8_t character, uint8_t color_code) {
 	if (x >= tty_width || y >= tty_height)
 		return;
@@ -149,6 +150,7 @@ uint32_t tty_translate_color_code(uint8_t color_code) {
 	return TTY_BACKGROUND_COLOR;
 }
 
+// Renders a character on the screen at the specified position, from the buffer
 void tty_render_character(uint64_t x, uint64_t y) {
 	tty_text_entry_t entry = tty_data[(y * tty_width) + x];
 	uint64_t fb_x = x * TTY_GLYPH_WIDTH;
@@ -208,6 +210,14 @@ void tty_putc(char c, uint8_t color_code) {
 	}
 	if (c == '\t') {
 		tty_x += 4 - (tty_x % 4);
+		return;
+	}
+	if (c == '\b') {
+		if (tty_x > 0) {
+			tty_x--;
+			tty_place_character(tty_x, tty_y, ' ', color_code);
+			tty_render_character(tty_x, tty_y);
+		}
 		return;
 	}
 	tty_place_character(tty_x, tty_y, c, color_code);
