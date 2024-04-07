@@ -92,9 +92,9 @@ irq_stub_%+%1:
     xor eax, eax
     mov ax, ds
     cmp ax, 0x10    ;; if ds == 0x10, we are in kernel mode
-;    jne .yes_task
-;    lea r15, [rel .no_task]
-;    jmp r15
+    jne .yes_task
+    lea r15, [rel .no_task]
+    jmp r15
     
     .yes_task:
     swapgs
@@ -213,9 +213,9 @@ isr_xframe_assembler:
     xor eax, eax
     mov ax, ds
     cmp ax, 0x10    ;; if ds == 0x10, we are in kernel mode
-;    jne .yes_task
-;    lea r15, [rel .no_task]
-;    jmp r15
+    jne .yes_task
+    lea r15, [rel .no_task]
+    jmp r15
     
     .yes_task:
     swapgs
