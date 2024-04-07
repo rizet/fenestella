@@ -17,6 +17,7 @@ static void _fash_buffer_backspace() {
 
 static void _fash_command_finalize() {
     tty_write("\n");
+    fash_execute_command((const char *)__input_buffer);
     memset(__input_buffer, 0x00, 0x1000);
     __buffer_index = 0;
     _prompted = false;

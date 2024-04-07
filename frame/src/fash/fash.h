@@ -7,3 +7,4 @@
 void fash_start();
 bool fash_started();
 void fash_continue();
+void fash_execute_command(const char* command);
