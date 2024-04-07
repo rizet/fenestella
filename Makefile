@@ -9,13 +9,16 @@ LIMINE-EFI		= https://github.com/limine-bootloader/limine/raw/v7.x-binary/BOOTX6
 .DEFAULT-GOAL	= image
 .PHONY			= clean
 
+FRAME-MK	= frame.mk
+GLASS-MK	= glass.mk
+
 $(GLASS):
-	@ make -C glass -j10
+	@ make -C glass -f $(GLASS-MK) -j12
 	@ mkdir -p build
 	@ cp glass/build/glass.sys $(GLASS)
 
 $(FRAME):
-	@ make -C frame -j10
+	@ make -C frame -f $(FRAME-MK) -j12
 	@ mkdir -p build
 	@ cp frame/build/frame.se $(FRAME)
 
@@ -42,8 +45,8 @@ image: $(IMAGE)
 
 clean:
 	@ rm -rf build
-	@ make -C glass clean
-	@ make -C frame clean
+	@ make -C glass -f $(GLASS-MK) clean
+	@ make -C frame -f $(FRAME-MK) clean
 
 QEMU_MEM	= 1G
 SERIAL_OUT	= stdio

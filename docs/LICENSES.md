@@ -1,5 +1,5 @@
 ## Legal license considerations
-I must reproduce licenses of some of the external code and binaries I include in this repository.
+It is legally mandated to reproduce the licenses of external binaries and source files included in this repository.
 #### OVMF (binary)
 ```
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -10,4 +10,4 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSE
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
-I include an OVMF binary inside this repository for convenience purposes.
+An OVMF binary is included inside this repository for convenience purposes.

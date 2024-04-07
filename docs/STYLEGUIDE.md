@@ -1,5 +1,5 @@
 # Styleguide
-If you do wish to contribute: please follow this extensive stylguide.
+Any code written in this repository must follow a styleguide.
 
 ## EditorConfig
-Please use the provided `.editorconfig` file. If you cannot use it, please do not contribute.
+Use of the provided `.editorconfig` file is mandatory. It provides configurations for an editor to automatically make tabs instead of spaces and accomodate other minute details. Use of an editor that parses editor configurations is mandatory.

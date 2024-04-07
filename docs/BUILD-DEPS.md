@@ -1,11 +1,13 @@
 # Build Dependencies
 ### nasm
-To build Skylight, you need nasm v2.15 or earlier. Otherwise, the assembler may spit out obsolete or archaic warnings. Whatever it is, it is unknown, so stick with v2.15.
+To build Skylight, NASM is required to compile the assembly source files. The files are written in NASM assembler syntax, so it is not possible to successfully compile this repository with any other assembler.
 ### clang
-Skylight builds with LLVM 14.0.0, however Skylight also compiles with `-pedantic` so there is a bit of backwards compatibility. Would not recommend using gcc4/clang5 or earlier.
+Skylight builds with the latest LLVM, and uses compiler-specific features and syntax. However, Skylight also compiles with `-pedantic` so there is a bit of backwards version compatibility. It is not recommended to use any version earlier than `clang-7`.
 ### mtools
-Just install mtools, no compatibility issues have been detected at this moment.
+Simply install mtools in order to format the FAT32 image, no version compatibility issues have been detected.
 ### wget
-You should already have this. If not, install it.
-### ovmf
-You need to have OVMF installed if you wish to run the OS through the Makefile.
+This is probably already installed on most Linux distributions, but it is required in order to obtain the latest Limine bootloader image during creation of the OS image.
+### util-linux
+This package is almost definitely installed on all Linux distributions, as it is depended on by many core programs. However, if it is not installed, it is required to install it for the purposes of compilation.
+### build-essential
+This package has different names on different distributions. `build-essential` is its name on Ubuntu. However, most distributions have a variation of this package which install basic development tools such as make, git, or compilers. Install this package regardless of which distribution you are using.
