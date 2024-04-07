@@ -25,6 +25,7 @@ static void _fash_command_finalize() {
 void __fash_keyboard_handle_event(uint8_t keycode) {
     if (!_started || __input_buffer == NULL) return;
     if (keycode & 0x80) return;
+    char decoded = kbd_char_decode(keycode);
     if (__buffer_index >= 0x1000) return;
     if (keycode == HID_KEYCODE_BACKSPACE) {
         _fash_buffer_backspace();
@@ -34,10 +35,9 @@ void __fash_keyboard_handle_event(uint8_t keycode) {
         _fash_command_finalize();
         return;
     }
-    char decoded = kbd_char_decode(keycode);
     if (decoded == 0x00) return;
     __input_buffer[__buffer_index++] = decoded;
-    char buf[2] = { decoded, 0x00 };
+    char buf[2] = {decoded, 0x00};
     if (_prompted) tty_write(buf);
 }
 

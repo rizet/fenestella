@@ -145,7 +145,6 @@ void kbd_update() {
     if (!_started) return;
     uint16_t buffered_keys = *internal_buffer_size;
     if (buffered_keys == 0) return;
-    tty_write("[kbd] got");
     for (uint16_t i = 0; i < buffered_keys; i++) {
         uint8_t keycode = internal_buffer[i];
         

@@ -19,6 +19,14 @@ static uint8_t ps2_kbd_vector   = 0x00;
 static uint8_t ps2_kbd_gsi      = 0x00;
 static uint8_t ps2_kbd_scan_set = 0x00;
 
+static uint8_t __kbd_scancode_buffer[8];
+static uint8_t __kbd_scancode_buffer_pos = 0;
+
+static void __ps2_kbd_clear_scan_buffer() {
+    memset(&__kbd_scancode_buffer[0], 0x00, 8);
+    __kbd_scancode_buffer_pos = 0;
+}
+
 static bool _capslock;
 static bool _numlock;
 static bool _scrolllock;
@@ -43,8 +51,13 @@ static void ps2_buffer_wait() {
     }
 }
 
+static bool __commanding = false;
 static bool ps2_kbd_send_command(uint8_t command, uint8_t operand) {
-    if (!ps2_test_responsivity()) return false;
+    __commanding = true;
+    if (!ps2_test_responsivity()) {
+        __commanding = false;
+        return false;
+    }
     uint8_t status = inb(PS2_KBD_DATA_PORT);
     if (status != PS2_KBD_STATUS_ERROR) {
         outb(PS2_KBD_DATA_PORT, command);
@@ -60,59 +73,52 @@ static bool ps2_kbd_send_command(uint8_t command, uint8_t operand) {
             timeout++;
         }
         if (status == PS2_KBD_STATUS_ERROR) {
+            __commanding = false;
             return false;
         }
         status = inb(PS2_KBD_DATA_PORT);
     }
+    __commanding = false;
     return true;
 }
 
 // Only works with scan code set two
 static bool ps2_kbd_needs_next_byte(uint8_t* scancode, size_t bytes) {
-    if (bytes == 1) {
-        if (scancode[0] == 0xE0) return true; // many different keys
-        if (scancode[0] == 0xF0) return true; // many different keys
-        if (scancode[0] == 0xE1) return true; // pause
-    }
-    if (bytes == 2) {
-        if (scancode[1] == 0xF0) return true; // many different keys
-        if (scancode[0] == 0xE0 && scancode[1] == 0x12) return true; // print screen
-        if (scancode[0] == 0xE1 && scancode[1] == 0x14) return true; // pause
-    }
-    if (bytes == 3) {
-        if (scancode[2] == 0x77) return true; // pause
-        if (scancode[2] == 0x7C) return true; // print screen
-        if (scancode[2] == 0xE0) return true; // print screen
-    }
-    if (bytes == 4) {
-        if (scancode[3] == 0xE0) return true; // print screen
-        if (scancode[3] == 0xE1) return true; // pause
-    }
-    if (bytes == 5) {
-        if (scancode[4] == 0xF0) return true; // pause and print screen
-    }
-    if (bytes == 6) {
-        if (scancode[5] == 0x14) return true; // pause
-    }
-    if (bytes == 7) {
-        if (scancode[6] == 0xF0) return true; // pause
-    }
+    switch (bytes) {
+        case 1:
+            if (scancode[0] == 0xE0) return true; // many different keys
+            if (scancode[0] == 0xF0) return true; // many different keys
+            if (scancode[0] == 0xE1) return true; // pause
+            break;
+        case 2:
+            if (scancode[1] == 0xF0) return true; // many different keys
+            if (scancode[0] == 0xE0 && scancode[1] == 0x12) return true; // print screen
+            if (scancode[0] == 0xE1 && scancode[1] == 0x14) return true; // pause
+            break;
+        case 3:
+            if (scancode[2] == 0x77) return true; // pause
+            if (scancode[2] == 0x7C) return true; // print screen
+            if (scancode[2] == 0xE0) return true; // print screen
+            break;
+        case 4:
+            if (scancode[3] == 0xE0) return true; // print screen
+            if (scancode[3] == 0xE1) return true; // pause
+            break;
+        case 5:
+            if (scancode[4] == 0xF0) return true; // pause and print screen
+            break;
+        case 6:
+            if (scancode[5] == 0x14) return true; // pause
+            break;
+        case 7:
+            if (scancode[6] == 0xF0) return true; // pause
+            break;
+    };
     return false;
 }
 
 static bool ps2_kbd_validate_state() {
-    return (ps2_kbd_scan_set == SCANCODES_SUPPORTED) && !_ismasked;
-}
-
-// Returns number of bytes in scan code
-size_t ps2_kbd_get_scancode(uint8_t* scancode_out) {
-    if (!ps2_kbd_validate_state()) return 0;
-    uint64_t bytes;
-    for (bytes = 0; bytes < 8; bytes++) {
-        scancode_out[bytes] = inb(PS2_KBD_DATA_PORT);
-        if (!ps2_kbd_needs_next_byte(scancode_out, (bytes + 1))) return ++bytes;
-    }
-    return 0;
+    return ((ps2_kbd_scan_set == SCANCODES_SUPPORTED) && !_ismasked);
 }
 
 void ps2_kbd_sync_leds() {
@@ -136,23 +142,19 @@ void ps2_kbd_handle_scancode(uint8_t* scancode, size_t bytes) {
 }
 
 void __kbd_ps2_irq_handler() {
-    serial_print_quiet("[kbd] IRQ received.\n");
-    if (!ps2_kbd_validate_state()) {
+    if (!ps2_kbd_validate_state() || __commanding) {
         ps2_kbd_set_mask(PS2_KBD_MASKED);
+        if (!__commanding) inb(PS2_KBD_DATA_PORT);
         apic_local_send_eoi();
         return;
     }
-    uint8_t* scancode = (uint8_t *)malloc(8);
-    memset(&scancode[0], 0x00, 8);
-    uint64_t scancode_size = ps2_kbd_get_scancode(&scancode[0]);
-    if (scancode_size == 0) {
+    __kbd_scancode_buffer[__kbd_scancode_buffer_pos] = inb(PS2_KBD_DATA_PORT);
+    if (!ps2_kbd_needs_next_byte(&__kbd_scancode_buffer[0], ++__kbd_scancode_buffer_pos)) {
+        ps2_kbd_handle_scancode(&__kbd_scancode_buffer[0], __kbd_scancode_buffer_pos);
+        __ps2_kbd_clear_scan_buffer();
         apic_local_send_eoi();
         return;
     }
-    ps2_kbd_handle_scancode(&scancode[0], scancode_size);
-    ps2_kbd_sync_leds();
-    free(scancode);
-
     apic_local_send_eoi();
 }
 
@@ -217,6 +219,8 @@ void ps2_kbd_init() {
     ps2_kbd_gsi = apic_io_get_gsi(PS2_KBD_IRQ_LINE);
     apic_io_redirect_irq(ps2_kbd_gsi, ps2_kbd_vector, false, false);
     ps2_kbd_set_mask(PS2_KBD_MASK_OFF);
+    __ps2_kbd_clear_scan_buffer();
+    __commanding = false;
 }
 
 void ps2_kbd_set_mask(bool mask) {
