@@ -12,77 +12,91 @@ _start_limine64:
     mov rbp, rsp
 
     extern gdt_assemble
-    call $+(gdt_assemble-$)   ; assemble the bonito gdt
+    lea r15, [rel gdt_assemble]
+    call r15   ; assemble the bonito gdt
 
     extern idt_assemble
-    call $+(idt_assemble-$)   ; assemble the bonito idt
+    lea r15, [rel idt_assemble]
+    call r15   ; assemble the bonito idt
     sti                 ; yay, interrupts work** now!
 
     extern configure_math_extensions
-    call $+(configure_math_extensions-$)  ; floating points, sse, all those goodies
+    lea r15, [rel configure_math_extensions]
+    call r15  ; floating points, sse, all those goodies
 
     xor eax, eax                    
     mov fs, ax                  ; zeroing (currently irrelevant) segment registers
     mov gs, ax
 
     extern limine_reinterpret
-    call $+(limine_reinterpret-$)   ; reinterpret stivale2 information to match internal protocol (boot protocol abstraction)
+    lea r15, [rel limine_reinterpret]
+    call r15   ; reinterpret stivale2 information to match internal protocol (boot protocol abstraction)
 
     extern pmm_start
-    call $+(pmm_start-$)      ; start the beautiful pmm
+    lea r15, [rel pmm_start]
+    call r15      ; start the beautiful pmm
 
     extern paging_reload_kernel_map
-    call $+(paging_reload_kernel_map-$)   ; hope no page faults >>>>:((((((
+    lea r15, [rel paging_reload_kernel_map]
+    call r15   ; hope no page faults >>>>:((((((
 
     xor edi, edi        ; we're not passing anything
     extern tss_install
-    call $+(tss_install-$)    ; instalar la tss bonita
+    lea r15, [rel tss_install]
+    call r15    ; instalar la tss bonita
 
     extern apic_initialize
-    call $+(apic_initialize-$)                ; initialize the Local APIC and IOAPIC
+    lea r15, [rel apic_initialize]
+    call r15                ; initialize the Local APIC and IOAPIC
     
     extern serial_console_enable
-    lea rax, [rel serial_console_enable]
-    call rax
+    lea r15, [rel serial_console_enable]
+    call r15
 
     extern local_timer_calibrate
-    call $+(local_timer_calibrate-$)          ; calibrate the local APIC timer (using PIT)
+    lea r15, [rel local_timer_calibrate]
+    call r15          ; calibrate the local APIC timer (using PIT)
 
     extern pci_conf_load_cache
-    call $+(pci_conf_load_cache-$)            ; load pci devices
+    lea r15, [rel pci_conf_load_cache]
+    call r15            ; load pci devices
 
     extern install_syscalls
-    call $+(install_syscalls-$)               ; install (los tontos) system calls
+    lea r15, [rel install_syscalls]
+    call r15               ; install (los tontos) system calls
 
     xor edi, edi
     xor esi, esi                ; cleanup scratch registers
     xor eax, eax
 
-    mov rdi, $+(frame_id-$)           
+    lea rdi, [rel frame_id]     ; load the frame id          
     extern get_boot_module
-    call $+(get_boot_module-$)        ; get the Frame executable
+    lea r15, [rel get_boot_module]
+    call r15        ; get the Frame executable
     mov rdi, [rax]              ; accessing first field of the returned structure (virt)
     extern elf_load_program
-    call $+(elf_load_program-$)       ; exec is module in memory, this function loads the elf segments properly and ready for execution
+    lea r15, [rel elf_load_program]
+    call r15       ; exec is module in memory, this function loads the elf segments properly and ready for execution
 
     extern task_create_new
     mov rdi, rax                ; create the new task with the entry point
-    call $+(task_create_new-$)      ; this function returns the task id
+    lea r15, [rel task_create_new]
+    call r15      ; this function returns the task id
 
     push rax
-    extern hid_enable_keyboard_interrupts
-    lea rax, [rel hid_enable_keyboard_interrupts]
-    call rax
-    pop rax
 
-    extern task_select          ; select the task to run
-    mov rdi, rax
+    extern hid_enable_keyboard_interrupts
+    lea r15, [rel hid_enable_keyboard_interrupts]
+    call r15
 
     mov rdi, 0x0000             ; num of cpu
     mov rsi, 0x0000            ; num of ist0/rsp0
     extern tss_get_stack
-    call tss_get_stack          ; load the rsp0/ist0 stack and swap away the limine stack
+    lea r15, [rel tss_get_stack]
+    call r15          ; load the rsp0/ist0 stack and swap away the limine stack
     
+    pop r15
+
     pop rbp
     pop rbp
     mov rsp, rax
@@ -90,12 +104,16 @@ _start_limine64:
     push rbp
     mov rbp, rsp
 
-    call $+(task_select-$)            ; select the task to run
+    extern task_select
+    mov rdi, r15
+    lea r15, [rel task_select]
+    call r15            ; select the task to run
 
     pop rbp
 
     extern reboot
-    jmp $+(reboot-$)                      ; reboot the system if the task_select function returns (which it shouldn't)
+    lea r15, [rel reboot]
+    jmp r15                      ; reboot the system if the task_select function returns (which it shouldn't)
     
     
 section .data

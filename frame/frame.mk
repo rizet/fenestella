@@ -22,6 +22,7 @@ CCFLAGS = \
 -I$(SOURCE) \
 -mno-red-zone \
 -fpic \
+-fpie \
 -gdwarf \
 -Werror \
 -Wno-switch-bool

@@ -1,9 +1,10 @@
-
 global isr_save_task_context
 isr_save_task_context:
+    lea r15, [rel __safe_r15]
+    mov r15, [r15]
     push rbp
     mov rbp, rsp
-    ; TODO proper full context switch
+
     push rbx
     push rax
     mov rax, cr3
@@ -67,14 +68,18 @@ isr_restore_task_context:
 %macro isr_err_stub 1
 isr_stub_%+%1:
     push %1
-    jmp $+(isr_xframe_assembler-$)
+    push r15
+    lea r15, [rel isr_xframe_assembler]
+    jmp r15
 %endmacro
 
 %macro isr_no_err_stub 1
 isr_stub_%+%1:
     push 0
     push %1
-    jmp $+(isr_xframe_assembler-$)
+    push r15
+    lea r15, [rel isr_xframe_assembler]
+    jmp r15
 %endmacro
 
 extern __routine_handlers
@@ -87,8 +92,9 @@ irq_stub_%+%1:
     xor eax, eax
     mov ax, ds
     cmp ax, 0x10    ;; if ds == 0x10, we are in kernel mode
-    pop rax
-    je .no_task
+;    jne .yes_task
+;    lea r15, [rel .no_task]
+;    jmp r15
     
     .yes_task:
     swapgs
@@ -97,8 +103,18 @@ irq_stub_%+%1:
     mov es, ax
     mov ss, ax
 
+    pop rax
     pop r15
-    call isr_save_task_context
+
+    push rax
+    mov rax, r15
+    lea r15, [rel __safe_r15]   ; elaborate local save r15 while also allowing for relative addressing
+    mov [r15], rax
+    mov r15, rax
+    pop rax
+
+    lea r15, [rel isr_save_task_context]
+    call r15
     mov [gs:0x20], rax  ; save task context returned in rax
     lea r15, [rel __routine_handlers]
     mov r15, [r15 + %1 * 8]
@@ -107,12 +123,15 @@ irq_stub_%+%1:
     mov ax, 0x1B    ; load user data segment
     mov ds, ax
     mov es, ax
-    call isr_restore_task_context
+
+    lea r15, [rel isr_restore_task_context]
+    call r15
     pop rbp
     swapgs
     iretq
     
     .no_task:   ; interrupting kernel
+    pop rax
     pop r15
     pushagrd
     lea r15, [rel __routine_handlers]
@@ -181,6 +200,7 @@ mov cr0, rax
 %endmacro
 
 isr_xframe_assembler:
+    pop r15
     push rbp
     mov rbp, rsp
     pushagrd
@@ -188,27 +208,43 @@ isr_xframe_assembler:
     mov ax, ds
     push rax
     push qword 0
-
+    push r15
     push rax
     xor eax, eax
     mov ax, ds
     cmp ax, 0x10    ;; if ds == 0x10, we are in kernel mode
-    pop rax
-    je .no_task
+;    jne .yes_task
+;    lea r15, [rel .no_task]
+;    jmp r15
     
     .yes_task:
     swapgs
-    call isr_save_task_context
     mov ax, 0x10 ; load kernel data segment
     mov ds, ax
     mov es, ax
     mov ss, ax
 
+    pop rax
+    pop r15
+
+    push rax
+    mov rax, r15
+    lea r15, [rel __safe_r15]   ; elaborate local save r15 while also allowing for relative addressing
+    mov [r15], rax
+    mov r15, rax
+    pop rax
+
+    lea r15, [rel isr_save_task_context]
+    call r15
+    mov [gs:0x20], rax  ; save task context returned in rax
+
     lea rdi, [rsp + 0x10]
     extern isr_exception_handler
-    call $+(isr_exception_handler-$)
+    lea r15, [rel isr_exception_handler]
+    call r15
 
-    call isr_restore_task_context
+    lea r15, [rel isr_restore_task_context]
+    call r15
 
     pop rax
     pop rax
@@ -225,7 +261,8 @@ isr_xframe_assembler:
     .no_task:
     lea rdi, [rsp + 0x10]
     extern isr_exception_handler
-    call $+(isr_exception_handler-$)
+    lea r15, [rel isr_exception_handler]
+    call r15
     
     pop rax
     pop rax
@@ -277,6 +314,7 @@ irq_stub        36
 irq_stub        37
 irq_stub        38
 
+section .data
 global isr_stub_table
 isr_stub_table:
 %assign i 0 
@@ -289,3 +327,5 @@ isr_stub_table:
     dq irq_stub_%+i
 %assign i i+1
 %endrep
+__safe_r15:
+    dq 0

@@ -24,6 +24,7 @@ CCFLAGS = \
 -mno-red-zone \
 -mcmodel=kernel \
 -fno-stack-protector \
+-fpic \
 -fpie \
 -gdwarf \
 -fwrapv \
