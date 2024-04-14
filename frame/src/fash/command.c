@@ -26,7 +26,7 @@ void __fash_command_args_dispose(fash_command_args_t* args) {
     for (int i = 0; (*args)[i] != NULL; i++) {
         free((*args)[i]);
     }
-    free(*args);
+    free((void *)(((uint64_t)*args) - sizeof(char*)));
 }
 
 fash_command_args_t* __fash_command_args_parse(const char* command, const char* input) {

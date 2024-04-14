@@ -21,7 +21,7 @@ heap_seg_header_t* last_header;
 heap_seg_header_t* header_split(heap_seg_header_t* segment, size_t split_length) {
     if (split_length < 0x10) return NULL;
     int64_t length = segment->length - split_length - (sizeof(heap_seg_header_t));
-    if (length < 0x10) return NULL;
+    if (length < 0x20) return NULL;
 
     heap_seg_header_t* new_header = (heap_seg_header_t *)((size_t)segment + split_length + sizeof(heap_seg_header_t));
 
@@ -31,8 +31,8 @@ heap_seg_header_t* header_split(heap_seg_header_t* segment, size_t split_length)
     new_header->next = segment->next;
     segment->next = new_header;
     new_header->last = segment;
-    new_header->length = length;
-    new_header->free = segment->free;
+    new_header->length = length - sizeof(heap_seg_header_t);
+    new_header->free = true;
     segment->length = split_length;
 
     if (last_header == segment) last_header = new_header;
@@ -50,6 +50,8 @@ void header_combine_forward(heap_seg_header_t* segment) {
     }
 
     segment->length = segment->length + segment->next->length + sizeof(heap_seg_header_t);
+
+    memset((void *)segment->next, 0x00, sizeof(heap_seg_header_t));
 
     segment->next = segment->next->next;
 }
@@ -107,6 +109,9 @@ void heap_expand(size_t length) {
 
 void free(void* address){
     heap_seg_header_t* segment = (heap_seg_header_t *)address - 1;
+    if (((uint64_t)segment->next - segment->length) != (uint64_t)segment) {
+        return;
+    }
     segment->free = true;
     header_combine_forward(segment);
     header_combine_backward(segment);
@@ -128,7 +133,10 @@ void* malloc(size_t size) {
     while (true) {
         if (current->free) {
             if (current->length > size) {
-                header_split(current, size);
+                if (!header_split(current, size)) {
+                    current->free = false;
+                    return (void*)((uint64_t)current + sizeof(heap_seg_header_t));
+                }
                 current->free = false;
                 return (void*)((uint64_t)current + sizeof(heap_seg_header_t));
             }

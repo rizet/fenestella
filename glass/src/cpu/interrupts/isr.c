@@ -42,7 +42,7 @@ static const char* __exception_labels[] = {
 
 void __print_interrupt_stacktrace(isr_xframe_t* ctx) {
     char itoa_buffer[67];
-    serial_print_quiet("\nAttempted stacktrace: interrupt during \n");
+    serial_print_quiet("\r\nAttempted stacktrace: interrupt during \r\n");
     uint64_t rbp = ctx->base_frame.rbp;
     void* rip = (void *)ctx->base_frame.rip;
     // Assumes unrelocated
@@ -56,14 +56,14 @@ void __print_interrupt_stacktrace(isr_xframe_t* ctx) {
                 serial_print_quiet(utoa((uint64_t)rip, itoa_buffer, 16));
                 serial_print_quiet(" <");
                 serial_print_quiet(symbol->name);
-                serial_print_quiet(">\n");
+                serial_print_quiet(">\r\n");
                 break;
             }
         }
         if (symbol == NULL) {
             serial_print_quiet("\t");
             serial_print_quiet(utoa((uint64_t)rip, itoa_buffer, 16));
-            serial_print_quiet(" <unknown>\n");
+            serial_print_quiet(" <unknown>\r\n");
         }
         if ((uint64_t)rip != ctx->base_frame.rip)
             rbp = *(uint64_t*)rbp;
@@ -74,7 +74,7 @@ void __print_interrupt_stacktrace(isr_xframe_t* ctx) {
 
 void __dump_registers(isr_xframe_t* frame) {
     char itoa_buffer[67];
-    serial_print_quiet("\n\nprocess register dump:\n\trax: ");
+    serial_print_quiet("\r\n\r\nprocess register dump:\r\n\trax: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.rax, itoa_buffer, 16));
     serial_print_quiet(", rbx: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.rbx, itoa_buffer, 16));
@@ -86,7 +86,7 @@ void __dump_registers(isr_xframe_t* frame) {
     serial_print_quiet(utoa((uint64_t)frame->general_registers.rdi, itoa_buffer, 16));
     serial_print_quiet(", rsi: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.rsi, itoa_buffer, 16));
-    serial_print_quiet("\n\tr8: ");
+    serial_print_quiet("\r\n\tr8: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r8, itoa_buffer, 16));
     serial_print_quiet(", r9: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r9, itoa_buffer, 16));
@@ -94,7 +94,7 @@ void __dump_registers(isr_xframe_t* frame) {
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r10, itoa_buffer, 16));
     serial_print_quiet(", r11: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r11, itoa_buffer, 16));
-    serial_print_quiet("\n\tr12: ");
+    serial_print_quiet("\r\n\tr12: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r12, itoa_buffer, 16));
     serial_print_quiet(", r13: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r13, itoa_buffer, 16));
@@ -102,7 +102,7 @@ void __dump_registers(isr_xframe_t* frame) {
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r14, itoa_buffer, 16));
     serial_print_quiet(", r15: ");
     serial_print_quiet(utoa((uint64_t)frame->general_registers.r15, itoa_buffer, 16));
-    serial_print_quiet("\n\tcr0: ");
+    serial_print_quiet("\r\n\tcr0: ");
     serial_print_quiet(utoa((uint64_t)frame->control_registers.cr0, itoa_buffer, 16));
     serial_print_quiet(", cr2: ");
     serial_print_quiet(utoa((uint64_t)frame->control_registers.cr2, itoa_buffer, 16));
@@ -110,31 +110,31 @@ void __dump_registers(isr_xframe_t* frame) {
     serial_print_quiet(utoa((uint64_t)frame->control_registers.cr3, itoa_buffer, 16));
     serial_print_quiet(", cr4: ");
     serial_print_quiet(utoa((uint64_t)frame->control_registers.cr4, itoa_buffer, 16));
-    serial_print_quiet("\n\trsp: ");
+    serial_print_quiet("\r\n\trsp: ");
     serial_print_quiet(utoa((uint64_t)frame->base_frame.rsp, itoa_buffer, 16));
     serial_print_quiet(", rbp: ");
     serial_print_quiet(utoa((uint64_t)frame->base_frame.rbp, itoa_buffer, 16));
     serial_print_quiet(", rflags: ");
     serial_print_quiet(utoa((uint64_t)frame->base_frame.rflags, itoa_buffer, 16));
-    serial_print_quiet("\n\terror code: b*");
+    serial_print_quiet("\r\n\terror code: b*");
     serial_print_quiet(utoa((uint64_t)frame->base_frame.error_code, itoa_buffer, 2));
-    serial_print_quiet("\n");
+    serial_print_quiet("\r\n");
 }
 
 void __analyze_page_fault(uint64_t code) {
-    serial_print_quiet("\n\npage fault details:\n\tviolation: ");
+    serial_print_quiet("\r\n\r\npage fault details:\r\n\tviolation: ");
     serial_print_quiet(((code >> 0) & 1) ? "privileged" : "absent");
-    serial_print_quiet("\n\taccess: ");
+    serial_print_quiet("\r\n\taccess: ");
     serial_print_quiet(((code >> 1) & 1) ? "write" : "read");
-    serial_print_quiet("\n\torigin: ");
+    serial_print_quiet("\r\n\torigin: ");
     serial_print_quiet(((code >> 2) & 1) ? "user" : "kernel");
-    serial_print_quiet("\n\tbad entry: ");
+    serial_print_quiet("\r\n\tbad entry: ");
     serial_print_quiet(((code >> 3) & 1) ? "true" : "false");
-    serial_print_quiet("\n\texecution: ");
+    serial_print_quiet("\r\n\texecution: ");
     serial_print_quiet(((code >> 4) & 1) ? "true" : "false");
-    serial_print_quiet("\n\tpkru: ");
+    serial_print_quiet("\r\n\tpkru: ");
     serial_print_quiet(((code >> 5) & 1) ? "true" : "false");
-    serial_print_quiet("\n\tshadow: ");
+    serial_print_quiet("\r\n\tshadow: ");
     serial_print_quiet(((code >> 6) & 1) ? "true" : "false");
 }
 
@@ -145,7 +145,7 @@ void isr_exception_handler(isr_xframe_t* frame) {
     serial_set_input_masked(true);
     serial_print_quiet("FATAL ");
     serial_print_quiet(__exception_labels[frame->base_frame.vector]);
-    serial_print_quiet(":\n");
+    serial_print_quiet(":\r\n");
     __print_interrupt_stacktrace(frame);
     __dump_registers(frame);
     if (frame->base_frame.vector == PAGE_FAULT_CODE)
