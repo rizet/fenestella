@@ -9,7 +9,7 @@
 
 int main(void) {
     tty_start();
-    tty_write("skylight v0.3: \"sunrise\" (untracked build)\n\n");
+    tty_write("skylight v0.3: \"eclipse\"\n\n");
     tty_write("\n[frame] reached process entry.\n");
     tty_write("[frame] acquiring framebuffer lock... done.\n");
     

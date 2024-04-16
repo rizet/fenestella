@@ -32,11 +32,9 @@ void __fash_command_args_dispose(fash_command_args_t* args) {
 fash_command_args_t* __fash_command_args_parse(const char* command, const char* input) {
     fash_command_args_t* args;
     if (input == NULL) {
-        *args = NULL;
         return NULL;
     }
     if (input[strlen(command)] != ' ') {
-        *args = NULL;
         return NULL;
     }
     uint64_t com_len = strlen(command);
@@ -106,6 +104,18 @@ void fash_arg_command(fash_command_args_t args) {
     printf("\n");
 }
 
+void fash_echo_command(fash_command_args_t args) {
+    uint64_t count = __fash_command_args_count(args);
+    if (count == 0) {
+        printf("\n");
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        printf("%s ", args[i]);
+    }
+    printf("\n");
+}
+
 void fash_help_command(fash_command_args_t args);
 // NULL terminated array of command info
 static fash_command_info_t fash_command_infos[] = {
@@ -135,6 +145,16 @@ static fash_command_info_t fash_command_infos[] = {
         },
         fash_arg_command
     },
+    {
+        "echo",
+        (const char*[]) {
+            "Prints the arguments",
+            "Takes as many string arguments as provided",
+            NULL
+        },
+        fash_echo_command
+    },
+    
     {
         NULL,
         NULL,
