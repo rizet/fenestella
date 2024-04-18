@@ -28,10 +28,11 @@ In order to test the image, the testing emulator/hardware must be configured to 
  - PCI Express
  - 512MiB RAM (minimum)
 
-To quickly test in a temporary QEMU instance, enter the source tree after building an image, and execute `make run`.
+To quickly test in a temporary QEMU instance, enter the root of the repository after generating an image, and execute `make run`.
 
-To test on real hardware, meet the requirements above, and write the image to a drive.
-Boot into it through your UEFI boot menu.
+To test on real hardware, meet the requirements above, and write the image to a drive. Select the Limine/skylight boot option through the UEFI boot menu. The system will not boot on a computer that has Secure Boot enabled.
+
+For more information, reference [TESTING](docs/TESTING.md).
 
 ### License
 As of 06/18/2022, the license on this repository has been updated to the MIT license. However, any commits prior to commit [`47912c3`](https://github.com/austanss/skylight/commit/47912c3e3d6b84a53ded0a549ef881042b5731ac) still fall under the Creative Commons public domain license applied at the time.

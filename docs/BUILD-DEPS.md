@@ -1,4 +1,7 @@
 # Build Dependencies
+## Operating system
+The provided testing and execution scripts invoked through the root Makefile are designed to be executed in a Linux-based development environment. If using any other operating system, then a virtual machine containing Linux, or an integrated environment such as Windows' Subsystem for Linux, must be configured in order to properly perform any compilation or virtualized execution of the operating system.
+## Programs
 ### nasm
 To build Skylight, NASM is required to compile the assembly source files. The files are written in NASM assembler syntax, so it is not possible to successfully compile this repository with any other assembler.
 ### clang
