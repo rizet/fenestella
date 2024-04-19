@@ -4,25 +4,14 @@ FRAME	= $(OUTPUT)/frame.se
 IMAGE	= $(OUTPUT)/skylight.hdd
 
 LIMINE-EFI		= https://github.com/limine-bootloader/limine/raw/v7.x-binary/BOOTX64.EFI
-# actually 7.0 somehow
 
 .DEFAULT-GOAL	= image
-.PHONY			= clean
+.PHONY			= clean rmbin run debug debug-screen
 
 FRAME-MK	= frame.mk
 GLASS-MK	= glass.mk
 
-$(GLASS):
-	@ make -C glass -f $(GLASS-MK) -j12
-	@ mkdir -p build
-	@ cp glass/build/glass.sys $(GLASS)
-
-$(FRAME):
-	@ make -C frame -f $(FRAME-MK) -j12
-	@ mkdir -p build
-	@ cp frame/build/frame.se $(FRAME)
-
-$(IMAGE): glass frame
+$(IMAGE): rmbin glass frame
 	@ wget $(LIMINE-EFI) --quiet
 	@ dd if=/dev/zero of=fat.img bs=1M count=128
 	@ mformat -i fat.img -F ::
@@ -38,6 +27,22 @@ $(IMAGE): glass frame
 	@ mcopy -i fat.img boot.cfg ::/boot/limine.cfg
 	@ rm BOOTX64.EFI
 	@ mv fat.img build/skylight.hdd
+
+# only removes copied binaries and image
+# done to avoid recompiling everything
+# done to force for dependencies to be checked
+rmbin:
+	@ rm -rf $(OUTPUT)
+
+$(GLASS): rmbin
+	@ make -C glass -f $(GLASS-MK) -j12 all
+	@ mkdir -p build
+	@ cp glass/build/glass.sys $(GLASS)
+
+$(FRAME): rmbin
+	@ make -C frame -f $(FRAME-MK) -j12 all
+	@ mkdir -p build
+	@ cp frame/build/frame.se $(FRAME)
 
 glass: $(GLASS)
 frame: $(FRAME)
