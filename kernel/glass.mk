@@ -8,7 +8,7 @@ OBJECTS += $(patsubst $(SOURCE)/%.s, $(OUTPUT)/%.s.o, $(SCODE))
 
 LDS = glass.ld
 
-GLASS	= $(OUTPUT)/glass.sys
+GLASS	= $(OUTPUT)/kernel.sys
 
 CC 	= clang
 LD 	= clang

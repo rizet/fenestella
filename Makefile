@@ -1,32 +1,54 @@
 OUTPUT	= bin
-GLASS	= $(OUTPUT)/glass.sys
-FRAME	= $(OUTPUT)/frame.se
-IMAGE	= $(OUTPUT)/skylight.hdd
+KERNEL	= $(OUTPUT)/kernel.sys
 
-LIMINE-EFI		= https://github.com/limine-bootloader/limine/raw/v7.x-binary/BOOTX64.EFI
+IMAGE	= $(OUTPUT)/skylight.hdd
+IMGDIR	= $(OUTPUT)/image
+IMGTMP 	= fat.img
+FATTEN	= fatten.sh
+
+LIMINE-LINK		= https://github.com/limine-bootloader/limine/raw/v7.x-binary/BOOTX64.EFI
+LIMINE-FILE		= limine.efi
+
+APERTURE-GIT 	= https://github.com/austanss/aperture.git
+APERTURE-DIR	= aperture
+APERTURE-OUT	= $(OUTPUT)/aperture.se
 
 .DEFAULT-GOAL	= image
 .PHONY			= clean rmbin run debug debug-screen
 
-FRAME-MK	= frame.mk
-GLASS-MK	= glass.mk
+KERNEL-MK	= glass.mk
 
-$(IMAGE): rmbin glass frame
-	@ wget $(LIMINE-EFI) --quiet
-	@ dd if=/dev/zero of=fat.img bs=1M count=128
-	@ mformat -i fat.img -F ::
-	@ mmd -i fat.img ::/efi
-	@ mmd -i fat.img ::/efi/boot
-	@ mmd -i fat.img ::/boot
-	@ mmd -i fat.img ::/sys
-	@ mmd -i fat.img ::/sys/start
-	@ mmd -i fat.img ::/sys/share
-	@ mcopy -i fat.img BOOTX64.EFI ::/EFI/BOOT/BOOTX64.EFI
-	@ mcopy -i fat.img $(GLASS) ::/sys/start/glass.sys
-	@ mcopy -i fat.img $(FRAME) ::/sys/start/frame.se
-	@ mcopy -i fat.img boot.cfg ::/boot/limine.cfg
-	@ rm BOOTX64.EFI
-	@ mv fat.img $(OUTPUT)/skylight.hdd
+$(IMAGE): rmbin kernel
+	@ echo "generating system image..."
+##	clone and build aperture
+	@ echo "	assembling core programs..."
+	@ git clone $(APERTURE-GIT) -o $(APERTURE-DIR)
+	@ make -C $(APERTURE-DIR) all -j4 
+	@ cp $(APERTURE-DIR)/$(APERTURE-OUT) $(APERTURE-OUT)
+	@ rm $(APERTURE-DIR) -rf
+## 	download the latest Limine EFI file
+	@ echo "	downloading bootloader image..."
+	@ wget $(LIMINE-LINK) -O $(LIMINE-FILE) --quiet
+## 	organize the structure of the image
+	@ echo "	organizing file contents..."
+	@ mkdir $(IMGDIR)
+	@ mkdir $(IMGDIR)/efi
+	@ mkdir $(IMGDIR)/efi/boot
+	@ mkdir $(IMGDIR)/sys
+	@ mkdir $(IMGDIR)/sys/start
+	@ mkdir $(IMGDIR)/sys/share
+	@ cp $(LIMINE-FILE) $(IMGDIR)/efi/boot/BOOTX64.EFI
+	@ cp $(KERNEL) $(IMGDIR)/sys/start/kernel.sys
+	@ cp $(APERTURE-OUT) $(IMGDIR)/sys/start/aperture.se
+	@ cp boot.cfg $(IMGDIR)/limine.cfg
+## 	compile the file contents into an image
+	@ echo "	formatting final image..."
+	@ ./$(FATTEN) $(IMGTMP) $(IMGDIR) 128
+## 	clean up and finalize
+	@ echo "	cleaning up..."
+##	@ rm -rfd $(IMGDIR)
+	@ mv $(IMGTMP) $(IMAGE)
+	@ echo "done."
 
 # only removes copied binaries and image
 # done to avoid recompiling everything
@@ -34,28 +56,19 @@ $(IMAGE): rmbin glass frame
 rmbin:
 	@ rm -rf $(OUTPUT)
 
-$(GLASS): rmbin
-	@ make -C glass -f $(GLASS-MK) -j12 all
+$(KERNEL): rmbin
+	@ make -C kernel -f $(KERNEL-MK) -j12 all
 	@ mkdir -p $(OUTPUT)
-	@ cp glass/$(OUTPUT)/glass.sys $(GLASS)
+	@ cp kernel/$(OUTPUT)/kernel.sys $(KERNEL)
 
-$(FRAME): rmbin
-	@ make -C frame -f $(FRAME-MK) -j12 all
-	@ mkdir -p $(OUTPUT)
-	@ cp frame/$(OUTPUT)/frame.se $(FRAME)
-
-glass: $(GLASS)
-frame: $(FRAME)
+kernel: $(KERNEL)
 image: $(IMAGE)
 
 clean:
 	@ rm -rf $(OUTPUT)
-	@ make -C glass -f $(GLASS-MK) clean
-	@ make -C frame -f $(FRAME-MK) clean
+	@ make -C kernel -f $(KERNEL-MK) clean
 
 QEMU_MEM	= 1G
-SERIAL_OUT	= stdio
-
 QEMU_ARGS = -bios OVMF.fd \
 -drive file=$(IMAGE),format=raw \
 -net none \

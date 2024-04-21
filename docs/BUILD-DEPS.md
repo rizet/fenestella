@@ -8,6 +8,8 @@ To build Skylight, NASM is required to compile the assembly source files. The fi
 Skylight builds with the latest LLVM, and uses compiler-specific features and syntax. However, Skylight also compiles with `-pedantic` so there is a bit of backwards version compatibility. It is not recommended to use any version earlier than `clang-7`.
 ### mtools
 Simply install mtools in order to format the FAT32 image, no version compatibility issues have been detected.
+### dosfstools
+Similar versioning as mtools, is used similarly to help format the FAT32 image.
 ### wget
 This is probably already installed on most Linux distributions, but it is required in order to obtain the latest Limine bootloader image during creation of the OS image.
 ### util-linux

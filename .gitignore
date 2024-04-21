@@ -6,3 +6,7 @@ frame/bin/
 compile_commands.json
 nohup.out
 logs/**gi
+aperture/
+*.efi
+*.EFI
+fat.img
