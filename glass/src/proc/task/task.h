@@ -1,9 +1,8 @@
 #pragma once
-
-#include <stdint.h>
-#include <stdbool.h>
 #include "cpu/tss/tss.h"
 #include "proc/loader/elf.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 #define TASK_STATE_EXECUTION    0
 #define TASK_STATE_WAITING      1

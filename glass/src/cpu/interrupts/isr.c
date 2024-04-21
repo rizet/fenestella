@@ -1,9 +1,9 @@
-#include "isr.h"
+#include "cpu/interrupts/isr.h"
 #include "proc/task/task.h"
-#include "symbols.h"
-#include "dev/uart/uartsh.h"
-#include "misc/conv.h"
+#include "iodev/uart/uartsh.h"
 #include "boot/protocol.h"
+#include "extra/conv.h"
+#include "symbols.h"
 
 static const char* __exception_labels[] = {
     "[0x00] Divide by Zero Exception",

@@ -1,6 +1,6 @@
-#include "tty.h"
+#include "tty/tty.h"
+#include "lib/glass.h"
 #include <stddef.h>
-#include "../lib/glass.h"
 
 #define TTY_BACKGROUND_COLOR    0x00222222  // faint dark gray
 

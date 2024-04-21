@@ -1,5 +1,5 @@
 SOURCE	= src
-OUTPUT	= build
+OUTPUT	= bin
 
 CCODE 	= $(shell find $(SOURCE) -type f -name '*.c')
 SCODE	= $(shell find $(SOURCE) -type f -name '*.s')
@@ -68,6 +68,6 @@ $(GLASS): $(OBJECTS)
 	@ rm $(SYMS)
 
 clean:
-	@ rm -rf build
+	@ rm -rf $(OUTPUT)
 
 all: $(GLASS)

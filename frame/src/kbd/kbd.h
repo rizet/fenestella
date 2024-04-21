@@ -1,7 +1,7 @@
 #pragma once
+#include "lib/glass.h"
 #include <stdint.h>
 #include <stddef.h>
-#include "lib/glass.h"
 
 typedef void(*kbd_listener_t)(uint8_t keycode);
 

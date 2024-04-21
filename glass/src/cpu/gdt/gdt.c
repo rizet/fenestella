@@ -1,8 +1,8 @@
-#include "gdt.h"
+#include "cpu/gdt/gdt.h"
+#include "mem/paging/paging.h"
+#include "iodev/uart/uartsh.h"
+#include "extra/conv.h"
 #include <stdio.h>
-#include "mm/paging/paging.h"
-#include "dev/uart/uartsh.h"
-#include "misc/conv.h"
 #include <stddef.h>
 #include <string.h>
 

@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include "kbd/kbd.h"
+#include <stdint.h>
 
 uint8_t kbd_key_ascii_default[0x44] = {
     '\0',

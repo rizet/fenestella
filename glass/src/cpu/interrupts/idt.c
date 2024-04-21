@@ -1,12 +1,12 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "cpu/interrupts/idt.h"
 #include "cpu/gdt/gdt.h"
 #include "cpu/tss/tss.h"
-#include "mm/paging/paging.h"
-#include "misc/conv.h"
-#include "dev/uart/uartsh.h"
+#include "mem/paging/paging.h"
+#include "iodev/uart/uartsh.h"
+#include "extra/conv.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 PAGING_PAGE_ALIGNED
 idt_desc_t __idt[IDT_MAX_DESCRIPTORS];

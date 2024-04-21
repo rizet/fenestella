@@ -1,8 +1,8 @@
 #pragma once
+#include "tty/tty.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "tty/tty.h"
 
 void fash_start();
 bool fash_started();

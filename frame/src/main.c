@@ -1,11 +1,11 @@
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdlib.h>
 #include "lib/glass.h"
 #include "tty/tty.h"
 #include "fash/fash.h"
 #include "kbd/kbd.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 int main(void) {
     tty_start();

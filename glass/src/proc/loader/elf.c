@@ -1,11 +1,11 @@
+#include "proc/loader/elf.h"
+#include "mem/pmm/pmm.h"
+#include "mem/paging/paging.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "proc/loader/elf.h"
-#include "mm/pmm/pmm.h"
-#include "mm/paging/paging.h"
 
 bool elf_is_page_mapped(elf_load_info_t* info, uint64_t p_vaddr) {
     for (uint64_t i = 0; i < info->segment_count; i++)

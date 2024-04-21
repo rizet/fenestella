@@ -1,7 +1,7 @@
-#include <string.h>
 #include "fash/fash.h"
 #include "kbd/kbd.h"
 #include "lib/glass.h"
+#include <string.h>
 
 static bool _started = false;
 static bool _prompted = false;

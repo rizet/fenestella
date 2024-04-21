@@ -1,7 +1,8 @@
-build/
+bin/
 .vscode/
-glass/build/
-frame/build/
+.vs/
+glass/bin/
+frame/bin/
 compile_commands.json
 nohup.out
-logs/**
+logs/**gi

@@ -1,4 +1,4 @@
-OUTPUT	= build
+OUTPUT	= bin
 GLASS	= $(OUTPUT)/glass.sys
 FRAME	= $(OUTPUT)/frame.se
 IMAGE	= $(OUTPUT)/skylight.hdd
@@ -26,7 +26,7 @@ $(IMAGE): rmbin glass frame
 	@ mcopy -i fat.img $(FRAME) ::/sys/start/frame.se
 	@ mcopy -i fat.img boot.cfg ::/boot/limine.cfg
 	@ rm BOOTX64.EFI
-	@ mv fat.img build/skylight.hdd
+	@ mv fat.img $(OUTPUT)/skylight.hdd
 
 # only removes copied binaries and image
 # done to avoid recompiling everything
@@ -36,20 +36,20 @@ rmbin:
 
 $(GLASS): rmbin
 	@ make -C glass -f $(GLASS-MK) -j12 all
-	@ mkdir -p build
-	@ cp glass/build/glass.sys $(GLASS)
+	@ mkdir -p $(OUTPUT)
+	@ cp glass/$(OUTPUT)/glass.sys $(GLASS)
 
 $(FRAME): rmbin
 	@ make -C frame -f $(FRAME-MK) -j12 all
-	@ mkdir -p build
-	@ cp frame/build/frame.se $(FRAME)
+	@ mkdir -p $(OUTPUT)
+	@ cp frame/$(OUTPUT)/frame.se $(FRAME)
 
 glass: $(GLASS)
 frame: $(FRAME)
 image: $(IMAGE)
 
 clean:
-	@ rm -rf build
+	@ rm -rf $(OUTPUT)
 	@ make -C glass -f $(GLASS-MK) clean
 	@ make -C frame -f $(FRAME-MK) clean
 

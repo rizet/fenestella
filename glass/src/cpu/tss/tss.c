@@ -1,9 +1,9 @@
-#include "tss.h"
-#include "../gdt/gdt.h"
-#include "mm/paging/paging.h"
-#include "mm/pmm/pmm.h"
-#include "misc/conv.h"
-#include "dev/uart/uartsh.h"
+#include "cpu/tss/tss.h"
+#include "cpu/gdt/gdt.h"
+#include "mem/paging/paging.h"
+#include "mem/pmm/pmm.h"
+#include "extra/conv.h"
+#include "iodev/uart/uartsh.h"
 #include <string.h>
 #include <stdio.h>
 
