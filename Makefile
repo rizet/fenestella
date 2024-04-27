@@ -43,11 +43,14 @@ $(IMAGE): rmbin kernel
 	@ cp boot.cfg $(IMGDIR)/limine.cfg
 ## 	compile the file contents into an image
 	@ echo "	formatting final image..."
-	@ ./$(FATTEN) $(IMGTMP) $(IMGDIR) 128
+	@ dd if=/dev/zero of="$(IMGTMP)" bs=1M count="1024"
+	@ mformat -i "$(IMGTMP)" -F -v "FAT32_IMAGE" ::
+	@ mcopy -i "$(IMGTMP)" -s -v "$(IMGDIR)"/* ::/ > /dev/null 2>&1
 ## 	clean up and finalize
 	@ echo "	cleaning up..."
-##	@ rm -rfd $(IMGDIR)
+	@ rm -rfd $(IMGDIR)
 	@ mv $(IMGTMP) $(IMAGE)
+	@ rm -f $(LIMINE-FILE)
 	@ echo "done."
 
 # only removes copied binaries and image

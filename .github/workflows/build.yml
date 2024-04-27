@@ -14,5 +14,5 @@ jobs:
         run: sudo apt update && sudo apt install util-linux dosfstools mtools nasm clang build-essential wget
 
       - name: Build system image
-        run: git clone https://github.com/rizet/skylight.git && cd skylight && chmod +x ./fatten.sh && make image
+        run: git clone https://github.com/rizet/skylight.git && cd skylight && make image
     
