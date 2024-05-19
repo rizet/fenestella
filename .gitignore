@@ -1,12 +1,9 @@
-bin/
+**/bin/
 .vscode/
 .vs/
-glass/bin/
-frame/bin/
-compile_commands.json
+**/compile_commands.json
 nohup.out
 logs/**gi
-aperture/
 *.efi
 *.EFI
 fat.img

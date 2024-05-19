@@ -9,23 +9,15 @@ FATTEN	= fatten.sh
 LIMINE-LINK		= https://github.com/limine-bootloader/limine/raw/v7.x-binary/BOOTX64.EFI
 LIMINE-FILE		= limine.efi
 
-APERTURE-GIT 	= https://github.com/austanss/aperture.git
-APERTURE-DIR	= aperture
 APERTURE-OUT	= $(OUTPUT)/aperture.se
 
 .DEFAULT-GOAL	= image
-.PHONY			= clean rmbin run debug debug-screen
+.PHONY			= clean rmtmpbin run debug debug-screen
 
 KERNEL-MK	= glass.mk
 
-$(IMAGE): rmbin kernel
+$(IMAGE): rmtmpbin kernel frames
 	@ echo "generating system image..."
-##	clone and build aperture
-	@ echo "	assembling core programs..."
-	@ git clone $(APERTURE-GIT) -o $(APERTURE-DIR)
-	@ make -C $(APERTURE-DIR) all -j4 
-	@ cp $(APERTURE-DIR)/$(APERTURE-OUT) $(APERTURE-OUT)
-	@ rm $(APERTURE-DIR) -rf
 ## 	download the latest Limine EFI file
 	@ echo "	downloading bootloader image..."
 	@ wget $(LIMINE-LINK) -O $(LIMINE-FILE) --quiet
@@ -53,23 +45,41 @@ $(IMAGE): rmbin kernel
 	@ rm -f $(LIMINE-FILE)
 	@ echo "done."
 
+
+
 # only removes copied binaries and image
 # done to avoid recompiling everything
 # done to force for dependencies to be checked
-rmbin:
+rmtmpbin:
 	@ rm -rf $(OUTPUT)
 
-$(KERNEL): rmbin
-	@ make -C kernel -f $(KERNEL-MK) -j12 all
+KERNEL_DIR	= kernel
+$(KERNEL): rmtmpbin
+	@ make -C $(KERNEL_DIR) -j12 all
 	@ mkdir -p $(OUTPUT)
-	@ cp kernel/$(OUTPUT)/kernel.sys $(KERNEL)
+	@ cp $(KERNEL_DIR)/$(KERNEL) $(KERNEL)
+
+APPS_DIR	= apps
+FRAMES_DIR	= $(APPS_DIR)/frames
+
+APERTURE_DIR	= $(FRAMES_DIR)/aperture
+$(APERTURE-OUT): rmtmpbin
+	@ make -C $(APERTURE_DIR) -j12 all
+	@ mkdir -p $(OUTPUT)
+	@ cp $(APERTURE_DIR)/$(APERTURE-OUT) $(APERTURE-OUT)
 
 kernel: $(KERNEL)
+
+aperture: $(APERTURE-OUT)
+frames: aperture
+
 image: $(IMAGE)
+
 
 clean:
 	@ rm -rf $(OUTPUT)
-	@ make -C kernel -f $(KERNEL-MK) clean
+	@ make -C $(KERNEL_DIR) clean
+	@ make -C $(APERTURE_DIR) clean
 
 QEMU_MEM	= 1G
 QEMU_ARGS = -bios OVMF.fd \
