@@ -69,7 +69,7 @@ _start_limine64:
     xor esi, esi                ; cleanup scratch registers
     xor eax, eax
 
-    lea rdi, [rel aperture_id]     ; load the aperture id          
+    lea rdi, [rel initx_id]     ; load the init program id          
     extern get_boot_module
     lea r15, [rel get_boot_module]
     call r15        ; get the Frame executable
@@ -117,5 +117,5 @@ _start_limine64:
     
     
 section .data
-aperture_id:
-    db "aperture.se",0     ; null-terminated c-string
+initx_id:
+    db "prism.se",0     ; null-terminated c-string

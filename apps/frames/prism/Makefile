@@ -6,7 +6,7 @@ SCODE	= $(shell find $(SOURCE) -type f -name '*.s')
 OBJECTS	= $(patsubst $(SOURCE)/%.c, $(OUTPUT)/%.c.o, $(CCODE))
 OBJECTS += $(patsubst $(SOURCE)/%.s, $(OUTPUT)/%.s.o, $(SCODE))
 
-PROGRAM	= $(OUTPUT)/aperture.se
+PROGRAM	= $(OUTPUT)/prism.se
 
 CC 	= clang
 LD 	= clang

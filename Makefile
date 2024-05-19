@@ -9,7 +9,7 @@ FATTEN	= fatten.sh
 LIMINE-LINK		= https://github.com/limine-bootloader/limine/raw/v7.x-binary/BOOTX64.EFI
 LIMINE-FILE		= limine.efi
 
-APERTURE-OUT	= $(OUTPUT)/aperture.se
+PRISM-OUT	= $(OUTPUT)/prism.se
 
 .DEFAULT-GOAL	= image
 .PHONY			= clean rmtmpbin run debug debug-screen
@@ -31,7 +31,7 @@ $(IMAGE): rmtmpbin kernel frames
 	@ mkdir $(IMGDIR)/sys/share
 	@ cp $(LIMINE-FILE) $(IMGDIR)/efi/boot/BOOTX64.EFI
 	@ cp $(KERNEL) $(IMGDIR)/sys/start/kernel.sys
-	@ cp $(APERTURE-OUT) $(IMGDIR)/sys/start/aperture.se
+	@ cp $(PRISM-OUT) $(IMGDIR)/sys/start/prism.se
 	@ cp boot.cfg $(IMGDIR)/limine.cfg
 ## 	compile the file contents into an image
 	@ echo "	formatting final image..."
@@ -62,16 +62,16 @@ $(KERNEL): rmtmpbin
 APPS_DIR	= apps
 FRAMES_DIR	= $(APPS_DIR)/frames
 
-APERTURE_DIR	= $(FRAMES_DIR)/aperture
-$(APERTURE-OUT): rmtmpbin
-	@ make -C $(APERTURE_DIR) -j12 all
+PRISM_DIR	= $(FRAMES_DIR)/prism
+$(PRISM-OUT): rmtmpbin
+	@ make -C $(PRISM_DIR) -j12 all
 	@ mkdir -p $(OUTPUT)
-	@ cp $(APERTURE_DIR)/$(APERTURE-OUT) $(APERTURE-OUT)
+	@ cp $(PRISM_DIR)/$(PRISM-OUT) $(PRISM-OUT)
 
 kernel: $(KERNEL)
 
-aperture: $(APERTURE-OUT)
-frames: aperture
+prism: $(PRISM-OUT)
+frames: prism
 
 image: $(IMAGE)
 
@@ -79,7 +79,7 @@ image: $(IMAGE)
 clean:
 	@ rm -rf $(OUTPUT)
 	@ make -C $(KERNEL_DIR) clean
-	@ make -C $(APERTURE_DIR) clean
+	@ make -C $(PRISM_DIR) clean
 
 QEMU_MEM	= 1G
 QEMU_ARGS = -bios OVMF.fd \
