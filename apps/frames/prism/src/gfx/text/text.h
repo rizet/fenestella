@@ -18,6 +18,10 @@
 #define TEXT_COLOR_LIGHT_BROWN 14
 #define TEXT_COLOR_WHITE 15
 
+#define TEXT_COLOR_COMBO(fg, bg) ((bg << 4) | fg)
+#define TEXT_COLOR_GET_FG(color) (color & 0x0F)
+#define TEXT_COLOR_GET_BG(color) (color >> 4)
+
 typedef struct {
     uint64_t p_x;
     uint64_t p_y;

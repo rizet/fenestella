@@ -113,12 +113,14 @@ uint32_t text_translate_color_code(uint8_t color_code) {
 void text_render_place_at(text_render_pos_t pos, char c, uint8_t color) {
 	if (!screen_ready)
 		return;
-	uint32_t fore_pixel = text_translate_color_code(color >> 0);
-	uint32_t back_pixel = text_translate_color_code(color >> 4);
+	uint32_t fore_pixel = text_translate_color_code(TEXT_COLOR_GET_FG(color));
+	uint32_t back_pixel = text_translate_color_code(TEXT_COLOR_GET_BG(color));
+	uint64_t p_x = (pos.p_x * TEXT_GLYPH_WIDTH);
+	uint64_t p_y = (pos.p_y * TEXT_GLYPH_HEIGHT);
 	uint64_t _x = 0;
-	for (uint64_t xx = pos.p_x; xx < pos.p_x+8; xx++) {
+	for (uint64_t xx = p_x; xx < p_x+TEXT_GLYPH_WIDTH; xx++) {
 		uint64_t _y = 0;
-		for (uint64_t yy = pos.p_y; yy < pos.p_y+8; yy++) {
+		for (uint64_t yy = p_y; yy < p_y+TEXT_GLYPH_HEIGHT; yy++) {
 			screen_fb[(yy * screen_width) + xx] = text_glyph_read(c, (_y * glyph_width + _x)) ? fore_pixel : back_pixel;
 			_y++;
 		}
@@ -129,8 +131,10 @@ void text_render_place_at(text_render_pos_t pos, char c, uint8_t color) {
 void text_render_clean_at(text_render_pos_t pos) {
 	if (!screen_ready)
 		return;
-	for (uint64_t xx = pos.p_x; xx < pos.p_x+8; xx++) {
-		for (uint64_t yy = pos.p_y; yy < pos.p_y+8; yy++) {
+	uint64_t p_x = (pos.p_x * TEXT_GLYPH_WIDTH);
+	uint64_t p_y = (pos.p_y * TEXT_GLYPH_HEIGHT);
+	for (uint64_t xx = p_x; xx < p_x+TEXT_GLYPH_WIDTH; xx++) {
+		for (uint64_t yy = p_y; yy < p_y+TEXT_GLYPH_HEIGHT; yy++) {
 			screen_fb[(yy * screen_width) + xx] = 0x00;
 		}
 	}

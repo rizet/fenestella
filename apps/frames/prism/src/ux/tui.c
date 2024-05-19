@@ -1,20 +1,22 @@
 #include "ux/tui.h"
-#include "ux/panels/panels.h"
+#include "ux/menus/menus.h"
 #include "kbd/kbd.h"
 #include "gfx/text/text.h"
 
 static bool _tui_on = false;
 
-void _tui_kbd_event(uint8_t keycode) {
+static tui_menu_handle_t* _selected_menu;
 
+void _tui_kbd_event(uint8_t keycode) {
+    if (!_selected_menu)
+        return;
+    _selected_menu->handle_key(keycode);
 }
 
-static tui_panel_handle_t* _selected_panel;
-
 bool tui_graphic_update() {
-    if (!_selected_panel)
+    if (!_selected_menu)
         return false;
-    _selected_panel->invoke();
+    _selected_menu->update();
     return true;
 }
 
@@ -25,7 +27,7 @@ void tui_start() {
     if (!kbd_add_listener(_tui_kbd_event)) return;
 
     text_render_init(); 
-    _selected_panel = main_panel;
+    _selected_menu = menus_menu_main;
     tui_graphic_update();
 
     _tui_on = true;
@@ -39,5 +41,6 @@ bool tui_update() {
     if (!_tui_on) {
         return false;
     }
+    kbd_update();
     return tui_graphic_update();
 }
