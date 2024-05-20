@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <string.h>
 
+static bool _menu_needs_update = true;
+///
+/// Menu design specification data
+///
 #define MENU_MAIN_WHITE_OVERRIDE TEXT_COLOR_WHITE
 #define MENU_MAIN_BLACK_OVERRIDE TEXT_COLOR_BLACK
 
@@ -21,23 +25,33 @@ static menu_item_t __menu_main_option_2;
 static menu_item_t __menu_main_option_3;
 static menu_item_t __menu_main_option_4;
 
+void __menu_option_clear(void) {
+    text_render_clear();
+    _menu_needs_update = true;
+}
 static menu_item_t __menu_main_option_1 = {
-    .next = &__menu_main_option_2,   .perform = NULL_MENU_TASK_HANDLER,
-    .text = "Option 1",
+    .next = &__menu_main_option_2,   .perform = (const void *)&__menu_option_clear,
+    .text = "Clear",
     .col = 0,   .row = 0,   .color = TEXT_COLOR_RED,
     .up = &__menu_main_option_2,    .down = &__menu_main_option_2,   .left = NULL,    .right = &__menu_main_option_3
 };
 
+static bool pong = false;
+void __menu_option_ping(void) {
+    menu_render_string_at(MENU_MAIN_MARGIN_LEFT+0, MENU_MAIN_MARGIN_TOP+7, pong ? "Pong!" : "Pong?", TEXT_COLOR_COMBO(TEXT_COLOR_WHITE, TEXT_COLOR_RED));
+    pong = !pong;
+}
+
 static menu_item_t __menu_main_option_2 = {
-    .next = &__menu_main_option_3,   .perform = NULL_MENU_TASK_HANDLER,
-    .text = "Option 2",
+    .next = &__menu_main_option_3,   .perform = (const void *)&__menu_option_ping,
+    .text = "Ping...",
     .col = 0,   .row = 6,   .color = TEXT_COLOR_CYAN,
     .up = &__menu_main_option_1,    .down = &__menu_main_option_1,   .left = NULL,    .right = NULL
 };
 
 static menu_item_t __menu_main_option_3 = {
     .next = &__menu_main_option_4,   .perform = NULL_MENU_TASK_HANDLER,
-    .text = "Option 3",
+    .text = "Continue",
     .col = MENU_MAIN_INDENT_SIZE,   .row = 2,   .color = TEXT_COLOR_GREEN,
     .up = &__menu_main_option_4,    .down = &__menu_main_option_4,   .left = &__menu_main_option_1,    .right = NULL
 };
@@ -49,6 +63,10 @@ static menu_item_t __menu_main_option_4 = {
     .up = &__menu_main_option_3,    .down = &__menu_main_option_3,   .left = &__menu_main_option_1,    .right = NULL
 };
 
+
+///
+/// Menu interaction and rendering logic
+///
 #define INVERT_COLOR_BG(color) (color ^ 0x80)
 static void _menu_main_highlight_option(const menu_item_t* option) {
     // Highlight the option
@@ -90,7 +108,6 @@ static void _menu_main_draw() {
     _menu_main_select_option(__selected_option);
 }
 
-static bool _menu_needs_update = true;
 static bool _menu_initialized = false;
 void _menu_initialize() {
     if (_menu_initialized) {
@@ -102,6 +119,10 @@ void _menu_initialize() {
     _menu_initialized = true;
 }
 
+
+///
+/// Menu handle interface implementations
+///
 void menu_main_update() {
     if (!_menu_initialized) {
         _menu_initialize();
@@ -144,6 +165,10 @@ tui_menu_handle_t _menu_main = {
     .next = NULL
 };
 
+
+///
+/// Header file implementations
+///
 tui_menu_handle_t* menus_menu_main = &_menu_main;
 
 void menu_render_string_at(uint64_t col, uint64_t row, const char* str, uint8_t color) {
