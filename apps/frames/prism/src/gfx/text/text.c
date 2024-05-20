@@ -10,6 +10,16 @@
 
 extern uint64_t __integrated_font[];
 
+static uint8_t __font_booleans[0x100][0x40];
+
+static void _text_renderer_load_glyph() {
+	for (uint64_t i = 0; i < 0x100; i++) {
+		for (uint64_t j = 0; j < 0x40; j++) {
+			__font_booleans[i][j] = (__integrated_font[i] >> j) & 1;
+		}
+	}
+}
+
 static uint32_t* screen_fb;
 static uint64_t screen_width, screen_height;
 static uint64_t screen_cols, screen_rows;
@@ -18,7 +28,7 @@ static bool glyphs_loaded;
 static bool screen_ready = false;
 
 static inline bool text_glyph_read(unsigned char c, uint64_t at) {
-	return ((__integrated_font[c] >> at) & 1);
+	return (bool)__font_booleans[c][at];
 }
 
 void text_render_load_dimensions(uint64_t screen_wide, uint64_t screen_high) {
@@ -40,6 +50,7 @@ void text_render_init() {
 	screen_fb = fb_req();
 	if (!screen_fb) return;
 	text_render_load_dimensions(rdinfo(FIELD_DISPLAY_WIDTH), rdinfo(FIELD_DISPLAY_HEIGHT));
+	_text_renderer_load_glyph();
 	screen_ready = true;
 	text_render_clear();
 }
