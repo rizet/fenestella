@@ -13,6 +13,7 @@ LD 	= clang
 AS 	= nasm
 
 CCFLAGS = \
+-Og \
 -std=c17 \
 -ffreestanding \
 -fno-stack-protector \

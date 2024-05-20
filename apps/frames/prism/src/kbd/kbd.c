@@ -166,5 +166,6 @@ void kbd_update() {
             if (listeners[j] != NULL) listeners[j](keycode);
         }
     }
-    memset((void *)internal_buffer, 0x00, 0x1000);
+    memset((void *)internal_buffer, 0x00, ++buffered_keys);
+    *internal_buffer_size = 0;
 }

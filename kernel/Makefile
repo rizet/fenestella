@@ -18,6 +18,7 @@ SYMGEN	= ./symbol_gen.sh
 SYMS	= __symbols.c
 
 CCFLAGS = \
+-Og \
 -std=c17 \
 -ffreestanding \
 -I$(SOURCE) \

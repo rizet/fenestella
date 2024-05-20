@@ -7,9 +7,11 @@ void hid_enable_keyboard_interrupts() {
 
 extern void __kb_man_save_key(uint8_t keycode);
 bool hid_register_keystroke(uint8_t keycode) {
-    if (keycode == HID_KEYCODE_NULL) {
-        return false;
+    switch (keycode) {
+        case HID_KEYCODE_NULL:
+            return false;
+        default:
+            __kb_man_save_key(keycode);
+            return true;
     }
-    __kb_man_save_key(keycode);
-    return true;
 }

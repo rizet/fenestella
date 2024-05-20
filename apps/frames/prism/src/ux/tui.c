@@ -8,16 +8,23 @@ static bool _tui_on = false;
 static tui_menu_handle_t* _selected_menu;
 
 void _tui_kbd_event(uint8_t keycode) {
-    if (!_selected_menu)
-        return;
-    _selected_menu->handle_key(keycode);
+    switch ((uint64_t)_selected_menu) {
+        case 0:
+            return;
+        default:
+            _selected_menu->handle_key(keycode);
+            return;
+    }
 }
 
 bool tui_graphic_update() {
-    if (!_selected_menu)
-        return false;
-    _selected_menu->update();
-    return true;
+    switch ((uint64_t)_selected_menu) {
+        case 0:
+            return false;
+        default:
+            _selected_menu->update();
+            return true;
+    }
 }
 
 void tui_start() {
@@ -38,8 +45,11 @@ void tui_cleanup_exit() {
 }
 
 bool tui_update() {
-    if (!_tui_on) {
-        return false;
+    switch (_tui_on) {
+        case false:
+            return false;
+        default:
+            break;
     }
     kbd_update();
     return tui_graphic_update();
