@@ -3,6 +3,7 @@
 .vs/
 **/compile_commands.json
 nohup.out
+docs/private
 logs/**gi
 *.efi
 *.EFI
