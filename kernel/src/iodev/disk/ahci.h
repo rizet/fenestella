@@ -125,7 +125,6 @@ typedef struct {
     ahci_hba_port_t*            port_hba;
     uint32_t                    port_number;
     ahci_controller_port_type_t port_type;
-    void*                       data_buffer;
 } ahci_drive_handle_t;
 
 typedef struct {
@@ -136,6 +135,7 @@ typedef struct {
 
 void ahci_drive_command_start(const ahci_drive_handle_t* drive);
 void ahci_drive_command_stop(const ahci_drive_handle_t* drive);
+bool ahci_drive_command_read_wait(const ahci_drive_handle_t* drive, uint64_t lba, uint32_t sector_count, void* out_buffer);
 
 // Returns false if driver is not available, or there is no AHCI controller
 const bool ahci_driver_available();
