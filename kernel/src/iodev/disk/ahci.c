@@ -149,16 +149,21 @@ void ahci_debug_print_port(const ahci_drive_handle_t* drive) {
         return;
     }
 
+    if (drive->port_type != AHCI_CONTROLLER_PORT_TYPE_SATA) {
+        serial_print_quiet("\r\nPort is an unsupported non-SATA port\r\n");
+        return;
+    }
+
     void* buffer = pmm_alloc_page();
     ahci_drive_command_read_wait(drive, 0, 4, buffer);
 
     char ch_buf[2] = { 0, 0 };
-    serial_print_quiet("\n\n\n\n\n");
+    serial_print_quiet("\r\n\n\n\n\n");
     for (uint32_t i = 0; i < 512; i++) {
         ch_buf[0] = ((char *)buffer)[i];
         serial_print_quiet(ch_buf);
     }
-    serial_print_quiet("\n\n\n\n\n");
+    serial_print_quiet("\r\n\n\n\n\n");
 }
 
 void ahci_controller_configure_port(uint32_t port_no) {
@@ -248,6 +253,11 @@ void ahci_drive_command_stop(const ahci_drive_handle_t* drive) {
 
 bool ahci_drive_command_read_wait(const ahci_drive_handle_t* drive, uint64_t lba, uint32_t sector_count, void* out_buffer) {
     if (!ahci_driver_available()) {
+        return false;
+    }
+
+    if (drive->port_type != AHCI_CONTROLLER_PORT_TYPE_SATA) {
+        serial_print_error("Attempted to read from unsupported AHCI port!\r\n");
         return false;
     }
 
