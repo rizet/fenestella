@@ -22,7 +22,7 @@ typedef enum {
     AHCI_FIS_TYPE_DEV_BITS  = 0xA1,
 } ahci_controller_fis_type_t;
 
-typedef struct {
+typedef volatile struct {
     uint32_t    command_list_base_lower;
     uint32_t    command_list_base_upper;
     uint32_t    fis_base_lower;
@@ -44,7 +44,7 @@ typedef struct {
     uint32_t    vendor_specific[0x04];
 } __attribute__((__packed__)) ahci_hba_port_t;
 
-typedef struct {
+typedef volatile struct {
     uint32_t        host_capabilities;
     uint32_t        global_host_control;
     uint32_t        interrupt_status;

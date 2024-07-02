@@ -209,6 +209,7 @@ void ahci_controller_configure_all_ports() {
     if (__ports_configured) {
         return;
     }
+    ahci_controller_probe_ports();
     for (uint32_t i = 0; i < AHCI_CONTROLLER_PORT_COUNT; i++) {
         ahci_controller_configure_port(i);
     }
@@ -296,6 +297,7 @@ bool ahci_drive_command_read_wait(const ahci_drive_handle_t* drive, uint64_t lba
 
 #define HBA_STATUS_TFES     (1 << 30)
     drive->port_hba->command_issue = 1;
+
     while (true) {
         if (drive->port_hba->interrupt_status & HBA_STATUS_TFES) {
             return false;
