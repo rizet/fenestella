@@ -65,10 +65,6 @@ _start_limine64:
     lea r15, [rel install_syscalls]
     call r15               ; install (los tontos) system calls
 
-    extern _ahci_driver_load_pci
-    lea r15, [rel _ahci_driver_load_pci]
-    call r15
-
     xor edi, edi
     xor esi, esi                ; cleanup scratch registers
     xor eax, eax

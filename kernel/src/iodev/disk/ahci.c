@@ -199,8 +199,6 @@ void ahci_controller_configure_port(uint32_t port_no) {
     }
 
     ahci_drive_command_start(drive);
-
-    ahci_debug_print_port(drive);
 }
 
 static bool __ports_configured = false;
@@ -308,4 +306,68 @@ bool ahci_drive_command_read_wait(const ahci_drive_handle_t* drive, uint64_t lba
     }
 
     return true;
+}
+
+void __uartsh_disk_dump() {
+    if (!ahci_driver_available()) {
+        serial_print_error("AHCI driver not available\r\n");
+        return;
+    }
+
+    serial_print_quiet("\r\n\n\nAHCI Disk Testing:\r\n");
+    char itoa_buffer[67];
+    for (uint32_t i = 0; i < AHCI_CONTROLLER_PORT_COUNT; i++) {
+        ahci_drive_handle_t* drive = &_ahci_bus_handle.drive_ports[i];
+        if (drive->port_hba == NULL || drive->port_type == AHCI_CONTROLLER_PORT_TYPE_NONE || drive->port_number != i) {
+            continue;
+        }
+
+        serial_print_quiet("\r\n\n---\r\nPort ");
+        serial_print_quiet(utoa(drive->port_number, itoa_buffer, 10));
+        serial_print_quiet(", sector 0:\r\n");
+
+        ahci_debug_print_port(drive);
+    }
+    serial_print_quiet("\r\n=====\r\n\n");
+}
+
+void __uartsh_disk_info() {
+    serial_print_quiet("\r\n\n\nAHCI Disk Information:\r\nMay take up to a minute...\r\n");
+    if (!ahci_driver_available()) {
+        serial_print_error("AHCI driver not available\r\n\n\n");
+        return;
+    }
+
+    char itoa_buffer[67];
+    for (uint32_t i = 0; i < AHCI_CONTROLLER_PORT_COUNT; i++) {
+        ahci_drive_handle_t* drive = &_ahci_bus_handle.drive_ports[i];
+        if (drive->port_hba == NULL || drive->port_number != i) {
+            continue;
+        }
+
+        serial_print_quiet("\r\n\tPort ");
+        serial_print_quiet(utoa(drive->port_number, itoa_buffer, 10));
+        serial_print_quiet(", class: ");
+        switch (drive->port_type) {
+            case AHCI_CONTROLLER_PORT_TYPE_SATA:
+                serial_print_quiet("SATA");
+                break;
+            case AHCI_CONTROLLER_PORT_TYPE_SATAPI:
+                serial_print_quiet("SATAPI");
+                break;
+            case AHCI_CONTROLLER_PORT_TYPE_SEMB:
+                serial_print_quiet("SEMB");
+                break;
+            case AHCI_CONTROLLER_PORT_TYPE_PM:
+                serial_print_quiet("PM");
+                break;
+            case AHCI_CONTROLLER_PORT_TYPE_NONE:
+                serial_print_quiet("NONE");
+                break;
+            default:
+                serial_print_quiet("ERROR");
+                break;
+        }
+    }
+    serial_print_quiet("\r\n\n");
 }

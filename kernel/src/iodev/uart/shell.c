@@ -68,8 +68,10 @@ static void __shell_command_mem_map();
 static void __shell_command_uart_info();
 static void __shell_command_pci_info();
 static void __shell_command_clear();
+static void __shell_command_disk_info();
+static void __shell_command_disk_dump();
 
-#define NUMBER_OF_COMMANDS 10
+#define NUMBER_OF_COMMANDS 12
 
 void(*__shell_command_handlers[NUMBER_OF_COMMANDS])() = {
     __shell_command_help,
@@ -81,7 +83,9 @@ void(*__shell_command_handlers[NUMBER_OF_COMMANDS])() = {
     __shell_command_mem_map,
     __shell_command_uart_info,
     __shell_command_pci_info,
-    __shell_command_clear
+    __shell_command_clear,
+    __shell_command_disk_info,
+    __shell_command_disk_dump
 };
 
 const char* __uart_shell_commands[NUMBER_OF_COMMANDS] = {
@@ -94,7 +98,9 @@ const char* __uart_shell_commands[NUMBER_OF_COMMANDS] = {
     "mem",
     "uart",
     "pci",
-    "clear"
+    "clear",
+    "lsdisks",
+    "disktest"
 };
 
 static void uart_shell_command_execute(uint16_t command_no) {
@@ -185,6 +191,8 @@ static void __shell_command_help() {
     __uart_internal_write("uart: print info on uart (serial) state\r\n", output_port);
     __uart_internal_write("pci: print list of pci functions\r\n", output_port);
     __uart_internal_write("clear: attempt to clear the screen (compatibility varies)\r\n", output_port);
+    __uart_internal_write("lsdisks: list available AHCI disks\r\n", output_port);
+    __uart_internal_write("disktest: test AHCI disk read operations\r\n", output_port);
     __uart_internal_write("\r\n", output_port);
 }
 
@@ -234,4 +242,14 @@ static void __shell_command_clear() {
     __uart_internal_write("Viewing this message indicates failure: attempting to clear screen with escape sequences \\033[2J and \\033[H...\r\n", output_port);
     __uart_internal_write("NOTICE: Some monitors may simply scroll the text out of view, this indicates success.\r\n", output_port);
     __uart_internal_write("\033[2J\r\n\033[H", output_port);
+}
+
+extern void __uartsh_disk_dump();
+static void __shell_command_disk_dump() {
+    __uartsh_disk_dump();
+}
+
+extern void __uartsh_disk_info();
+static void __shell_command_disk_info() {
+    __uartsh_disk_info();
 }
